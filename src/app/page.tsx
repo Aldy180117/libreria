@@ -1,95 +1,124 @@
+'use client'
+import React, { useState } from 'react';
 import Image from 'next/image'
 import styles from './page.module.css'
 
+interface Libro{
+  id: number;
+  nombre: string;
+  autor: string;
+  fecha: string;
+  estado: string;
+}
+
+const defaultLibro:Libro = {
+  id: 0,
+  nombre: '',
+  autor: '',
+  fecha: '',
+  estado: 'Prestado'
+}
+
 export default function Home() {
+
+  const [libro, setLibro] = useState<Libro>(defaultLibro)
+  const [libreria, setLibreria] = useState<Libro[]>([])
+  
+
+  const clear = ()=>{
+    console.log('click')
+    setLibro(defaultLibro)
+  }
+
+  function valido(){
+    if (libro.nombre === '') {
+      alert('Nombre vacio, añada un valor')
+      return false;
+    }
+    if (libro.autor === '') {
+      alert('Autor vacio, añada un valor')
+      return false;
+    }
+    if (libro.fecha === '') {
+      alert('Fecha vacia, añada un valor')
+      return false;
+    }
+    if (libro.estado === '') {
+      alert('Estado vacio, añada un valor')
+      return false;
+    }
+    return true;
+  }
+
+  function agregarLibro(){
+    if (valido()) {
+      const nuevoLibro:Libro = {...libro, id: libreria.length === 0 ? 1 : libreria[libreria.length - 1].id +1} 
+      setLibreria([...libreria, nuevoLibro])
+      clear()
+    }
+  }
+
+  function eliminarLibro(id: number){
+    setLibreria(libreria.filter(item => item.id !== id))
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <main className='p-5'>
+      <div className="mb-3">
+        <label className="form-label">Nombre</label>
+        <input type="text" className="form-control" placeholder="Nombre" value={libro.nombre} onChange={e => setLibro({...libro, nombre: e.target.value})}/>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="mb-3">
+        <label className="form-label">Autor</label>
+        <input type="text" className="form-control"  placeholder="Autor" value={libro.autor} onChange={e => setLibro({...libro, autor: e.target.value})}/>
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="mb-3">
+        <label className="form-label">Fecha de salida</label>
+        <input type="date" className="form-control" placeholder="Fecha de salida" value={libro.fecha} onChange={e => setLibro({...libro, fecha: e.target.value})}/>
       </div>
+      <div className="mb-3">
+        <label className="form-label">Estado</label>
+        <select value={libro.estado} onChange={e => setLibro({...libro, estado: e.target.value} )}
+        className="form-control"  placeholder="Estado">
+          <option value="Prestado">Prestado</option>
+          <option value="Dañado">Dañado</option>
+          <option value="Perdido">Perdido</option>
+          <option value="Disponible">Disponible</option>
+        </select>
+      </div>
+      <div className='d-flex bd-highlight justify-content-center mb-5'>
+        <button type="button" className='btn btn-warning m-2' onClick={()=> {clear()}}>
+          Limpiar
+        </button>
+        <button type="button" className='btn btn-success m-2' onClick={()=> {agregarLibro()}}>
+          Agregar
+        </button>
+      </div>
+      <table className="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Autor</th>
+            <th scope="col">Fecha de lanzamiento</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {libreria.map((item, index)=>(
+            <tr>
+            <th>{item.nombre}</th>
+            <td>{item.autor}</td>
+            <td>{item.fecha}</td>
+            <td>{item.estado}</td>
+            <td>
+              <button type="button" className='btn btn-danger' onClick={()=> eliminarLibro(item.id)}>
+              Eliminar
+              </button>
+            </td>
+          </tr>
+          ))}
+        </tbody>
+      </table>
     </main>
   )
 }
