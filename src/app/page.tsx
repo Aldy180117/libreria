@@ -1,7 +1,9 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image'
 import styles from './page.module.css'
+import { isLogged, logout } from '@/services/registerService';
+import { useRouter } from 'next/navigation'
 
 interface Libro{
   id: number;
@@ -21,8 +23,21 @@ const defaultLibro:Libro = {
 
 export default function Home() {
 
+  const router = useRouter() 
+
   const [libro, setLibro] = useState<Libro>(defaultLibro)
   const [libreria, setLibreria] = useState<Libro[]>([])
+
+  useEffect(()=>{
+    if (!isLogged()) {
+      router.push('/login')
+    }
+  }, [])
+
+  const clickLogout = ()=>{
+    logout()
+    router.push('/login')
+  }
   
 
   const clear = ()=>{
@@ -64,6 +79,9 @@ export default function Home() {
 
   return (
     <main className='p-5'>
+      <button type="button" className='btn btn-warning m-2' onClick={clickLogout}>
+          Logout
+      </button>
       <div className="mb-3">
         <label className="form-label">Nombre</label>
         <input type="text" className="form-control" placeholder="Nombre" value={libro.nombre} onChange={e => setLibro({...libro, nombre: e.target.value})}/>
