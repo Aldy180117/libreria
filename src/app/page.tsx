@@ -2,16 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image'
 import styles from './page.module.css'
-import { isLogged, logout } from '@/services/registerService';
+import { getUser, isLogged, logout } from '@/services/registerService';
 import { useRouter } from 'next/navigation'
+import { Libro } from '@/interface/interface';
+import { getBooks, setBooks } from '@/services/librosService';
 
-interface Libro{
-  id: number;
-  nombre: string;
-  autor: string;
-  fecha: string;
-  estado: string;
-}
 
 const defaultLibro:Libro = {
   id: 0,
@@ -27,12 +22,23 @@ export default function Home() {
 
   const [libro, setLibro] = useState<Libro>(defaultLibro)
   const [libreria, setLibreria] = useState<Libro[]>([])
+  const [userName, setUserName] = useState<string>('')
+  const [update, setUpdated] = useState<boolean>(false)
 
   useEffect(()=>{
     if (!isLogged()) {
       router.push('/login')
     }
+    setUserName(getUser().email)
+    setLibreria(getBooks())
+    setUpdated(true)
   }, [])
+
+  useEffect(()=>{
+    if (update) {
+      setBooks(libreria)
+    }
+  }, [libreria])
 
   const clickLogout = ()=>{
     logout()
@@ -41,7 +47,6 @@ export default function Home() {
   
 
   const clear = ()=>{
-    console.log('click')
     setLibro(defaultLibro)
   }
 
@@ -79,6 +84,7 @@ export default function Home() {
 
   return (
     <main className='p-5'>
+      <label className="form-label">{userName}</label>
       <button type="button" className='btn btn-warning m-2' onClick={clickLogout}>
           Logout
       </button>
